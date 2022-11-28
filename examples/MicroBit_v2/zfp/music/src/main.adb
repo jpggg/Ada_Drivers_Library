@@ -103,5 +103,7 @@ procedure Main is
 
 --  Play music on the internal speaker at max volume and on repeat
 begin
-   MicroBit.Music.Play (27, Music_KnightRider);
+   loop
+      MicroBit.Music.Play (27, Music_KnightRider);
+   end loop;
 end Main;

@@ -77,4 +77,7 @@ package body MicroBit.Music is
 	  Set (Pin, False); --stop
    end Play;
 
+begin
+   --init pwm
+   Set_Analog_Period_Us (1_000_000 / 125);
 end MicroBit.Music;

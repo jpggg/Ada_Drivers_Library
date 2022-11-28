@@ -43,14 +43,12 @@ package MicroBit.Music is
 
    type Melody is array (Natural range <>) of Note;
 
-   procedure Play (Pin : Pin_Id; P : Pitch)
-     with Pre => Supports (Pin, Analog);
+   procedure Play (Pin : Pin_Id; P : Pitch);
 
-   procedure Play (Pin : Pin_Id; N : Note)
-     with Pre => Supports (Pin, Analog);
+   procedure Play (Pin : Pin_Id; N : Note);
 
-   procedure Play (Pin : Pin_Id; M : Melody)
-     with Pre => Supports (Pin, Analog);
+   procedure Play (Pin : Pin_Id; M : Melody);
+
 
    --  Predefined notes --
 
