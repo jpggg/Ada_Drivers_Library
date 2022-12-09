@@ -29,7 +29,47 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 with Ada.Real_Time; use Ada.Real_Time;
+--with MicroBit.Console; use MicroBit.Console;
+--use MicroBit;
 package body MicroBit.Music is
+
+   procedure VolumeUp is
+      begin
+      if Volume + 10 < Analog_Value'Last then
+         Volume := Volume +10;
+      end if;
+
+      if IsPlaying then
+         Write (27, Volume); --adjust volume of currently played tone
+      end if;
+   end VolumeUp;
+
+   procedure VolumeDown is
+       begin
+          if Volume - 10 >= Analog_Value'First then
+         Volume := Volume -10;
+      end if;
+
+      if IsPlaying then
+         Write (27, Volume);
+      end if;
+   end VolumeDown;
+
+   function Midi_To_Freq_Hz(key : UInt8) return Pitch is
+   test:Integer;
+   begin
+      if key = 0 then
+          --Put_Line("Stop: " & key'Image);
+         return NotesLut(1); --Rest
+      else
+         --Put_Line("Key: " & key'Image);
+         test := Integer(key) - 19;
+         --Put_Line("Index: " & test'Image);
+
+         return NotesLut(test);  --key 21 (the lowest key, A0) at index 2 so offset is 21-19=2, so 19.
+      end if;
+   end Midi_To_Freq_Hz;
+
 
    ----------
    -- Play --
@@ -41,13 +81,13 @@ package body MicroBit.Music is
    is
    begin
       if P = Rest then
-
+         IsPlaying := False;
          --  Disable PWM on the pin by giving it a digital value
          Set (Pin, False);
       else
-
+         IsPlaying := True;
          --  Enable PWM with a 50% duty cycle
-         Write (Pin, 512); --512 =50%, but https://github.com/bbcmicrobit/micropython/blob/master/source/microbit/modmusic.cpp use 128?
+         Write (Pin, Volume); --512 =50%, but https://github.com/bbcmicrobit/micropython/blob/master/source/microbit/modmusic.cpp use 128?
 
          --  Set the period corresponding to the required pitch
          Set_Analog_Period_Us (1_000_000 / Natural (P));
@@ -62,6 +102,7 @@ package body MicroBit.Music is
    begin
       Play (Pin, N.P);
       delay until Clock + Milliseconds(N.Ms);
+      IsPlaying := False;
    end Play;
 
    ----------
