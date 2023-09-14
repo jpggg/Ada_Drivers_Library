@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                       Copyright (C) 2019, AdaCore                        --
+--                       Copyright (C) 2020, AdaCore                        --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -28,58 +28,65 @@
 --   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
 --                                                                          --
 ------------------------------------------------------------------------------
+with HAL;     use HAL;
+with HAL.I2C; use HAL.I2C;
 
-with LSM303AGR; use LSM303AGR;
+--with Microbit.Console; use Microbit.Console;
+package DFR0548 is
 
-with MicroBit.DisplayRT;
-with MicroBit.DisplayRT.Symbols;
-with MicroBit.Accelerometer;
-with MicroBit.Console; use MicroBit.Console;
---with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time; use Ada.Real_Time;
-use MicroBit;
+  type Register_Address is new UInt8;
+  type Frequency is range 24 .. 1526; -- in Hz
+  type PinId is range 0 .. 7;
+  type ServoPins is range 1 .. 8;
+  type Degrees is range 0 .. 180;
 
-procedure Main is
+  type Wheel is record
+      SpeedForward: UInt12;
+      SpeedBackward: UInt12;
+   end record;
 
-   Data: All_Axes_Data;
+  type MotorDriver (Port : not null Any_I2C_Port) is
+     tagged limited private;
 
-   Threshold : constant := 150;
-begin
+   procedure Assert_Status (Status : I2C_Status);
 
-   loop
+   procedure Initialize(This : MotorDriver);
 
-      --  Read the accelerometer data
-      Data := Accelerometer.AccelData;
+   procedure Set_Frequency_Hz (This : MotorDriver;
+                               Freq : Frequency);
 
-      --  Print the ACC data on the serial port. Note the special format for the Unity simulator!
-      Put_Line ("ACC;" &
-                "X,"  & Data.X'Img & ";" &
-                "Y,"  & Data.Y'Img & ";" &
-                "Z,"  & Data.Z'Img);
+   procedure Set_Servo (This : MotorDriver;
+                        ServoPin: ServoPins;
+                        Angle: Degrees);
 
+   procedure Set_PWM_Wheels (This : MotorDriver;
+                  rf : Wheel;
+                  rb : Wheel;
+                  lf : Wheel;
+                  lb : Wheel);
 
-      --  Clear the LED matrix
-      MicroBit.DisplayRT.Clear;
+   function Convert_Wheel_PWM_Registers(w : Wheel) return I2C_Data;
 
-      --  Draw a symbol on the LED matrix depending on the orientation of the
-      --  micro:bit.
-      if Data.X > Threshold then
-         MicroBit.DisplayRT.Symbols.Left_Arrow;
+   function Compute_Prescaler_From_Frequency(f : Frequency) return UInt8; --we could use a range value from 0x03 to 0xFF but Freq is already ranged
+private
+   type MotorDriver (Port : not null Any_I2C_Port)
+   is tagged limited null record;
 
-      elsif Data.X < -Threshold then
-         MicroBit.DisplayRT.Symbols.Right_Arrow;
+   -- I2C Address: see page 8 https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf
+   -- A5A4A3A2A1A0 = 000000 results in 16#40# but, since 7 bits, needs a shift left
+   -- (16#40# << 1) = 16#80#,
 
-      elsif Data.Y > Threshold then
-         DisplayRT.Symbols.Up_Arrow;
+   MOTORDRIVER_ADDRESS   : constant I2C_Address := 16#80#;
 
-      elsif Data.Y < -Threshold then
-         MicroBit.DisplayRT.Symbols.Down_Arrow;
+   -- The (8-bit)g register addresses are on page 10
+   MODE1 : constant Register_Address := 16#00#;
+   PRESCALE : constant Register_Address := 16#FE#;
+   LED0_ON_L : constant Register_Address := 16#06#; --start address motors (counting up)
+   LED15_ON_L : constant Register_Address := 16#42#; --start address servos
 
-      else
-         MicroBit.DisplayRT.Symbols.Heart;
-       end if;
+   -- Commonly used register values
+   SLEEP : constant UInt8 := 16#10#;
+   START : constant UInt8 := 16#20#;
+   SOFT_RESET  : constant UInt8 := 16#06#;
 
-      --  Do nothing for 250 milliseconds
-       delay until Clock + Milliseconds(100);
-   end loop;
-end Main;
+end DFR0548;

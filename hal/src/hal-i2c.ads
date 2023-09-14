@@ -81,4 +81,11 @@ package HAL.I2C is
       Status        : out I2C_Status;
       Timeout       : Natural := 1000) is abstract;
 
+    procedure Mem_Write_Buffer
+     (This          : in out I2C_Port;
+      Addr          : I2C_Address;
+      Data          : I2C_Data;
+      Status        : out I2C_Status;
+      Timeout       : Natural := 1000) is abstract;
+
 end HAL.I2C;

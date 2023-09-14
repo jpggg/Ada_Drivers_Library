@@ -94,11 +94,20 @@ package nRF.TWI is
       Timeout       : Natural := 1000)
      with Pre => Enabled (This);
 
+   overriding
+   procedure Mem_Write_Buffer
+     (This          : in out TWI_Master;
+      Addr          : I2C_Address;
+      Data          : I2C_Data;
+      Status        : out I2C_Status;
+      Timeout       : Natural := 1000)
+     with Pre => Enabled (This);
+
 private
 
    type TWI_Master (Periph : not null access NRF_SVD.TWI.TWI_Peripheral) is
      new HAL.I2C.I2C_Port with record
-      Do_Stop_Sequence : Boolean := True;
+      Do_Stop_Sequence : Boolean := True; --do not repeat by default, so send stop condition
    end record;
 
 end nRF.TWI;

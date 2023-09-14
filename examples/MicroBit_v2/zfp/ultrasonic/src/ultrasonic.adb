@@ -3,6 +3,7 @@ with MicroBit.IOs; use MicroBit.IOs;
 with NRF_SVD.GPIO; use NRF_SVD.GPIO;
 use MicroBit;
 with HAL; use HAL;
+with MicroBit.Console; use MicroBit.Console;
 package body Ultrasonic is
 
    trigger_pin_device : Integer;
@@ -15,8 +16,8 @@ package body Ultrasonic is
       Set(trigger_pin, False); --set to output
       dummy := Set(echo_pin); --set to input
 
-      trigger_pin_device := Points(trigger_pin).Pin;
-      echo_pin_device := Points(echo_pin).Pin;
+      trigger_pin_device := Points(trigger_pin).Pin MOD 32;
+      echo_pin_device := Points(echo_pin).Pin MOD 32;
    end Setup;
 
    function Read return Distance_cm is
@@ -32,7 +33,7 @@ package body Ultrasonic is
 
    procedure SendTriggerPulse is
    begin
-      GPIO_Periph.OUT_k.Arr (trigger_pin_device) := high;
+      GPIO_Periph1.OUT_k.Arr (trigger_pin_device) := high;
       Delay_Us(10); -- Not 10 us, more about 11.4us (10 us+ required by ultrasonic spec)
                        --Higher delays become more accurate
                       -- If you use direct pin assignment setting a pin once before the loop (to be output, see init)
@@ -40,7 +41,7 @@ package body Ultrasonic is
                       -- 2 us pulses can be reached if Delay is set to 1. These are blocking calls and implemented using assembly NOP instructions so not precise
                       -- A 64MHz clock (systick) signal would be more accurate to use and count 64 pulses for 1 us.
                       -- There will always be a slight delay when toggling a pin. Toggling in hardware using use PPI and TE has the least delay.
-      GPIO_Periph.OUT_k.Arr (trigger_pin_device) := low;
+      GPIO_Periph1.OUT_k.Arr (trigger_pin_device) := low;
       end SendTriggerPulse;
 
    function WaitForEcho return Integer is

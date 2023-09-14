@@ -29,57 +29,38 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with LSM303AGR; use LSM303AGR;
+with MicroBit.MotorDriver; use MicroBit.MotorDriver; --using the procedures defined here
+with DFR0548;  -- using the types defined here
 
-with MicroBit.DisplayRT;
-with MicroBit.DisplayRT.Symbols;
-with MicroBit.Accelerometer;
-with MicroBit.Console; use MicroBit.Console;
---with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time; use Ada.Real_Time;
-use MicroBit;
+with MicroBit.Console; use MicroBit.Console; -- for serial port communication
+with MicroBit.Time; use MicroBit.Time; -- for time facilities
+use MicroBit; --for pin names
 
 procedure Main is
 
-   Data: All_Axes_Data;
-
-   Threshold : constant := 150;
 begin
-
+   Console.Put_Line ("Begin");
+   Time.Sleep (1000);
    loop
+      for I in DFR0548.Degrees range 40..100 loop
+         MotorDriver.Servo(1,I);
+         Time.Sleep (10);
+      end loop;
 
-      --  Read the accelerometer data
-      Data := Accelerometer.AccelData;
+      for I in reverse DFR0548.Degrees range 40..100 loop
+         MotorDriver.Servo(1,I);
+         Time.Sleep (10);
+      end loop;
 
-      --  Print the ACC data on the serial port. Note the special format for the Unity simulator!
-      Put_Line ("ACC;" &
-                "X,"  & Data.X'Img & ";" &
-                "Y,"  & Data.Y'Img & ";" &
-                "Z,"  & Data.Z'Img);
-
-
-      --  Clear the LED matrix
-      MicroBit.DisplayRT.Clear;
-
-      --  Draw a symbol on the LED matrix depending on the orientation of the
-      --  micro:bit.
-      if Data.X > Threshold then
-         MicroBit.DisplayRT.Symbols.Left_Arrow;
-
-      elsif Data.X < -Threshold then
-         MicroBit.DisplayRT.Symbols.Right_Arrow;
-
-      elsif Data.Y > Threshold then
-         DisplayRT.Symbols.Up_Arrow;
-
-      elsif Data.Y < -Threshold then
-         MicroBit.DisplayRT.Symbols.Down_Arrow;
-
-      else
-         MicroBit.DisplayRT.Symbols.Heart;
-       end if;
-
-      --  Do nothing for 250 milliseconds
-       delay until Clock + Milliseconds(100);
+      -- DEMONSTRATION ROUTINE (useful for checking your wiring)
+      MotorDriver.Drive(Forward,(4095,0,0,0)); --right front wheel to M4
+      Time.Sleep (1000);
+      MotorDriver.Drive(Forward,(0,4095,0,0)); --right back wheel to M3
+      Time.Sleep (1000);
+      MotorDriver.Drive(Forward,(0,0,4095,0)); --left front wheel to M2
+      Time.Sleep (1000);
+       MotorDriver.Drive(Forward,(0,0,0,4095)); --left back wheel to M1
+      Time.Sleep (1000); -- wait a bit longer, before doing the loop again
+      MotorDriver.Drive(Stop);
    end loop;
 end Main;

@@ -37,15 +37,29 @@ package MicroBit.I2C is
 
    function Initialized return Boolean;
    --  Return True if the I2C controller is initialized and ready to use
+   function InitializedExt return Boolean;
+   --  Return True if the I2C controller is initialized and ready to use
+
 
    procedure Initialize (S : Speed := S400kbps)
      with Post => Initialized;
    --  Initialize the I2C controller at given speed, using the micro:bit I2C
    --  pins:
+   --   - P31 -> SCL
+   --   - P30 -> SDA
+
+    procedure InitializeExt (S : Speed := S400kbps)
+     with Post => InitializedExt;
+   --  Initialize the I2C controller at given speed, using the micro:bit I2C
+   --  external pins:
    --   - P19 -> SCL
    --   - P20 -> SDA
 
+
    function Controller return not null Any_I2C_Port;
+   --  Return the HAL.I2C controller implementation
+
+   function ControllerExt return not null Any_I2C_Port;
    --  Return the HAL.I2C controller implementation
 
 end MicroBit.I2C;

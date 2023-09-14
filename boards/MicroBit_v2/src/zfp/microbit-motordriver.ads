@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                       Copyright (C) 2019, AdaCore                        --
+--                    Copyright (C) 2018-2019, AdaCore                      --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -28,58 +28,37 @@
 --   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
 --                                                                          --
 ------------------------------------------------------------------------------
+with DFR0548; use DFR0548;
+with HAL;     use HAL;
 
-with LSM303AGR; use LSM303AGR;
+package MicroBit.MotorDriver is
 
-with MicroBit.DisplayRT;
-with MicroBit.DisplayRT.Symbols;
-with MicroBit.Accelerometer;
-with MicroBit.Console; use MicroBit.Console;
---with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time; use Ada.Real_Time;
-use MicroBit;
+   type Directions is (Forward,
+                       Left,
+                       Forward_Left,
+                       Turning_Left,
+                       Lateral_Left,
+                       Stop);
 
-procedure Main is
+   type Speeds is record
+      rf: UInt12;
+      rb: UInt12;
+      lf: UInt12;
+      lb: UInt12;
+   end record;
 
-   Data: All_Axes_Data;
+   procedure Drive (Direction : Directions;
+                    Speed : Speeds := (4095,4095,4095,4095));
 
-   Threshold : constant := 150;
-begin
+   procedure Servo (ServoPin : ServoPins ;
+                    Angle : Degrees);
 
-   loop
+private
+   procedure Drive_Wheels(rf : Wheel;
+                         rb : Wheel;
+                         lf : Wheel;
+                         lb : Wheel);
 
-      --  Read the accelerometer data
-      Data := Accelerometer.AccelData;
+   procedure Initialize;
 
-      --  Print the ACC data on the serial port. Note the special format for the Unity simulator!
-      Put_Line ("ACC;" &
-                "X,"  & Data.X'Img & ";" &
-                "Y,"  & Data.Y'Img & ";" &
-                "Z,"  & Data.Z'Img);
-
-
-      --  Clear the LED matrix
-      MicroBit.DisplayRT.Clear;
-
-      --  Draw a symbol on the LED matrix depending on the orientation of the
-      --  micro:bit.
-      if Data.X > Threshold then
-         MicroBit.DisplayRT.Symbols.Left_Arrow;
-
-      elsif Data.X < -Threshold then
-         MicroBit.DisplayRT.Symbols.Right_Arrow;
-
-      elsif Data.Y > Threshold then
-         DisplayRT.Symbols.Up_Arrow;
-
-      elsif Data.Y < -Threshold then
-         MicroBit.DisplayRT.Symbols.Down_Arrow;
-
-      else
-         MicroBit.DisplayRT.Symbols.Heart;
-       end if;
-
-      --  Do nothing for 250 milliseconds
-       delay until Clock + Milliseconds(100);
-   end loop;
-end Main;
+end MicroBit.MotorDriver;

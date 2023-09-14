@@ -35,11 +35,14 @@ with nRF.TWI;
 package body MicroBit.I2C is
 
    Init_Done : Boolean := False;
+   Init_DoneExt : Boolean := False;
 
    Device : nRF.TWI.TWI_Master renames nRF.Device.TWI_0;
    --  This device should not conflict with the device used in MicroBit.SPI.
    --  See nRF Series Reference Manual, chapter Memory.Instantiation.
 
+   --use this interface for external I2C
+   DeviceExt : nRF.TWI.TWI_Master renames nRF.Device.TWI_1;
    -----------------
    -- Initialized --
    -----------------
@@ -47,6 +50,8 @@ package body MicroBit.I2C is
    function Initialized return Boolean
    is (Init_Done);
 
+   function InitializedExt return Boolean
+   is (Init_DoneExt);
    ----------------
    -- Initialize --
    ----------------
@@ -66,6 +71,20 @@ package body MicroBit.I2C is
       Init_Done := True;
    end Initialize;
 
+   procedure InitializeExt (S : Speed := S400kbps) is
+   begin
+      DeviceExt.Configure
+        (SCL   => MB_SCL_EXT.Pin,
+         SDA   => MB_SDA_EXT.Pin,
+         Speed => (case S is
+                      when S100kbps => nRF.TWI.TWI_100kbps,
+                      when S250kbps => nRF.TWI.TWI_250kbps,
+                      when S400kbps => nRF.TWI.TWI_400kbps)
+        );
+
+      DeviceExt.Enable;
+      Init_DoneExt := True;
+   end InitializeExt;
    ----------------
    -- Controller --
    ----------------
@@ -73,4 +92,6 @@ package body MicroBit.I2C is
    function Controller return not null Any_I2C_Port
    is (Device'Access);
 
+   function ControllerExt return not null Any_I2C_Port
+   is (DeviceExt'Access);
 end MicroBit.I2C;

@@ -28,8 +28,8 @@
 --   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
 --                                                                          --
 ------------------------------------------------------------------------------
-
 with NRF_SVD.TWI; use NRF_SVD.TWI;
+--with Microbit.Console; use Microbit.Console;
 
 package body nRF.TWI is
 
@@ -143,6 +143,8 @@ package body nRF.TWI is
       loop
 
          loop
+            --Put("Send: ");
+            --Put_Line(This.Periph.TXD.TXD'Image); --used for: debug bytes send
 
             Evt_Err := This.Periph.EVENTS_ERROR;
             if Evt_Err /= 0 then
@@ -237,6 +239,9 @@ package body nRF.TWI is
          This.Periph.EVENTS_RXDREADY := 0;
          Data (Index) := This.Periph.RXD.RXD;
 
+         --Put("Receive: ");
+         --Put_Line(This.Periph.RXD.RXD'Image); --used for: debug bytes received
+
          if Index = Data'Last - 1 and then This.Do_Stop_Sequence then
 
             --  Configure SHORTS to automatically stop the TWI port and produce
@@ -268,7 +273,7 @@ package body nRF.TWI is
 
       This.Do_Stop_Sequence := False;
 
-      case Mem_Addr_Size is
+    	case Mem_Addr_Size is
          when Memory_Size_8b =>
             This.Master_Transmit (Addr    => Addr,
                                   Data    => (0 => UInt8 (Mem_Addr)),
@@ -295,6 +300,21 @@ package body nRF.TWI is
                             Status  => Status,
                             Timeout => Timeout);
    end Mem_Write;
+
+   overriding procedure Mem_Write_Buffer
+     (This          : in out TWI_Master;
+      Addr          : I2C_Address;
+      Data          : I2C_Data;
+      Status        : out I2C_Status;
+      Timeout       : Natural := 1000) is
+   begin
+      This.Master_Transmit (Addr    => Addr,
+                            Data    => Data,
+                            Status  => Status,
+                            Timeout => Timeout);
+
+     -- This.Stop_Sequence;
+   end Mem_Write_Buffer;
 
    --------------
    -- Mem_Read --
@@ -338,5 +358,4 @@ package body nRF.TWI is
                            Status  => Status,
                            Timeout => Timeout);
    end Mem_Read;
-
 end nRF.TWI;
