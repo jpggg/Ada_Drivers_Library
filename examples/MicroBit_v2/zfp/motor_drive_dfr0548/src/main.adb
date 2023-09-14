@@ -39,9 +39,19 @@ use MicroBit; --for pin names
 procedure Main is
 
 begin
-   Console.Put_Line ("Begin");
-   Time.Sleep (1000);
    loop
+      -- DEMONSTRATION ROUTINE 4 MOTORS (useful for checking your wiring)
+      MotorDriver.Drive(Forward,(4095,0,0,0)); --right front wheel to M4
+      Time.Sleep (1000);
+      MotorDriver.Drive(Forward,(0,4095,0,0)); --right back wheel to M3
+      Time.Sleep (1000);
+      MotorDriver.Drive(Forward,(0,0,4095,0)); --left front wheel to M2
+      Time.Sleep (1000);
+       MotorDriver.Drive(Forward,(0,0,0,4095)); --left back wheel to M1
+      Time.Sleep (1000); -- wait a bit longer, before doing the loop again
+      MotorDriver.Drive(Stop);
+
+      -- DEMONSTRATION ROUTINE SERVO
       for I in DFR0548.Degrees range 40..100 loop
          MotorDriver.Servo(1,I);
          Time.Sleep (10);
@@ -52,15 +62,5 @@ begin
          Time.Sleep (10);
       end loop;
 
-      -- DEMONSTRATION ROUTINE (useful for checking your wiring)
-      MotorDriver.Drive(Forward,(4095,0,0,0)); --right front wheel to M4
-      Time.Sleep (1000);
-      MotorDriver.Drive(Forward,(0,4095,0,0)); --right back wheel to M3
-      Time.Sleep (1000);
-      MotorDriver.Drive(Forward,(0,0,4095,0)); --left front wheel to M2
-      Time.Sleep (1000);
-       MotorDriver.Drive(Forward,(0,0,0,4095)); --left back wheel to M1
-      Time.Sleep (1000); -- wait a bit longer, before doing the loop again
-      MotorDriver.Drive(Stop);
    end loop;
 end Main;

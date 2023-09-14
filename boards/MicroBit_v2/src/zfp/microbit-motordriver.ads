@@ -36,8 +36,10 @@ package MicroBit.MotorDriver is
    type Directions is (Forward,
                        Left,
                        Forward_Left,
-                       Turning_Left,
+                       Backward_Left,
+                       Turning,
                        Lateral_Left,
+                       Rotating_Left,
                        Stop);
 
    type Speeds is record
