@@ -32,6 +32,10 @@
 package MicroBit.Time.Highspeed is
    subtype Time_Us is UInt64;
 
+   -- Higher delays become more accurate
+   -- 2 us pulses can be reached if Delay is set to 1. These are blocking calls and implemented using assembly NOP instructions so not precise
+   -- A 64MHz clock (systick) signal would be more accurate to use and count 64 pulses for 1 us.
+   -- There will always be a slight delay when toggling a pin. Toggling in hardware using use PPI and TE has the least delay.
    procedure Delay_Us (Microseconds : UInt64); -- warning: this hacky implementation is not really a clock.
                                                -- after starting the external high frequency crystal
                                                -- NOP assembly instructions were added until oscilloscope showed reasonable alignment
