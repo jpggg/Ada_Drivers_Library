@@ -1,14 +1,13 @@
 with nRF.GPIO; use nRF.GPIO;
-
+with Microbit.Types; use MicroBit.Types;
+generic
+ 
 package MicroBit.Ultrasonic is
 
-   type Distance_cm is range 0 .. 400; -- if < 2 it is invalid
-   
    function Read return Distance_cm;
    
-   
    procedure Setup (trigger_pin : GPIO_Point; echo_pin : GPIO_Point);
-     
+
 private
    procedure SendTriggerPulse;
    

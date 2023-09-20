@@ -1,5 +1,7 @@
 with MicroBit.Time.Highspeed; use MicroBit.Time.Highspeed;
 package body MicroBit.Ultrasonic is
+   --2do: add multi sensor support
+   --     make calls non blocking
 
    Trigger   : GPIO_Point := MB_P0;
    Echo  : GPIO_Point := MB_P0;
@@ -50,14 +52,17 @@ package body MicroBit.Ultrasonic is
 
    function WaitForEcho return Integer is
       delayCounter :Integer := 0;
+      timeoutCounterEchoStart :Integer := 1000; -- about 300 us
+      timeoutCounterEchoEnd   : constant Integer := 400; -- about 400 cm = 23ms, ie nothing bounced back
    begin
-      --wait for echo to start
-      while Echo.Set = False  loop
-         null;
+      --wait for echo to start (should take about 200us to send 8x40KHz burst and after that it is set to high automatically by sensor)
+      while Echo.Set = False and timeoutCounterEchoStart > 0 loop
+         timeoutCounterEchoStart := timeoutCounterEchoStart -1;
+         Delay_Us(10);
       end loop;
 
       --wait for echo to end
-      while Echo.Set = True loop
+      while Echo.Set = True and (delayCounter < timeoutCounterEchoEnd) loop
          Delay_Us(58);  --wait for 58 us or 1 cm distance and check again
          delayCounter := delayCounter + 1;
       end loop;
