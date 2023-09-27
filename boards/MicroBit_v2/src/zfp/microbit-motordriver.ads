@@ -41,6 +41,7 @@ package MicroBit.MotorDriver is
                        Turning,
                        Lateral_Left,
                        Rotating_Left,
+                       Backward,
                        Stop);
 
    type Speeds is record

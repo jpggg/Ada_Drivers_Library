@@ -92,6 +92,11 @@ package body MicroBit.MotorDriver is
                          lb => (Speed.rb, 0),
                          lf => (0,Speed.lf),
                          rb => (0,Speed.lb));
+         when Backward =>
+            Drive_Wheels(rf => (0,Speed.rf),
+                         rb => (0,Speed.rb),
+                         lf => (0,Speed.lf),
+                         lb => (0,Speed.lb));
          when Stop =>
             Drive_Wheels(rf => (0, 0),
                          rb => (0, 0),
