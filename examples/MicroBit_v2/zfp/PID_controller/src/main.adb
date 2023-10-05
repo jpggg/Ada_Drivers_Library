@@ -1,40 +1,45 @@
-with MicroBit.Types; use MicroBit.Types;
-with MicroBit.Time; use MicroBit.Time;
-with PID;
-with HAL; use HAL;
-with HAL.Time; use HAL.Time;
-with MicroBit.Ultrasonic;
-with MicroBit.MotorDriver; use MicroBit.MotorDriver;
-with MicroBit.Console; use MicroBit.Console;
-with utils; use utils;
-use MicroBit;
+with Controller;
 
 
 procedure Main is
+begin
+   loop
+      null;
+   end loop;
+end Main;
 
-   package distance_sensor is new Ultrasonic;
 
-   package MotorPID is new PID (Kp => -500,
-                                Ki => 0,
-                                Kd => 0);
+
+
+
+   begin
+
+   end Read_Distance_Sensors_Front;
+
+
+
+
 
    motor_pwm_value : UInt12;
-   pid_value : Integer;
-   distance : Distance_cm;
-   target : Distance_cm := 30;
+   pid_value_right : Integer;
+   distance_right : Distance_cm;
+   target : Distance_cm := 20;
    motor_delay_ms : UInt64 := 0;
    min_pwm : Integer := -4095;
    max_pwm : Integer := 4095;
-   time : Time_Ms;
+   time_right : Time_Ms;
+   time_left : Time_Ms;
 
 begin
 
-   distance_sensor.Setup(MB_P0, MB_P1);
+   distance_sensor_right.Setup(MB_P0, MB_P1);
+   distance_sensor_left.Setup(MB_P2, MB_P3);
 
 
    loop
 
-      distance := distance_sensor.Read;
+      distance_right := distance_sensor_right.Read;
+      distance_left := distance_sensor_left.Read;
       Put_Line("Front" & Distance_cm'Image(distance));
 
       time := Tick_Period;

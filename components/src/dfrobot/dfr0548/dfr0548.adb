@@ -29,7 +29,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 with Microbit.Console; use Microbit.Console;
-with Microbit.Time; use Microbit.Time;
+-- with Microbit.Time; use Microbit.Time;
+with MicroBit.TimeWithRTC1; use MicroBit.TimeWithRTC1;
 use Microbit;
 package body DFR0548 is
 
