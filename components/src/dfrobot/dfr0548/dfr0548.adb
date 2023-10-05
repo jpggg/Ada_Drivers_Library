@@ -97,6 +97,26 @@ package body DFR0548 is
 
    end Set_Frequency_Hz;
 
+   procedure Set_PWM_Wheel(This : MotorDriver;
+                           values : Wheel;
+                           entity : UInt12)
+   is
+      Status : I2C_Status;
+      Buffer : I2C_Data ( 0 .. 32 );
+   begin
+      Buffer (0) := UInt8(LED0_ON_L); -- start address
+      case entity is
+         when 0 => Buffer (1 .. 8) := Convert_Wheel_PWM_Registers(values);
+         when 1 => Buffer (9 .. 16) := Convert_Wheel_PWM_Registers(values);
+         when 2 => Buffer (17 .. 24) := Convert_Wheel_PWM_Registers(values);
+         when 3 .. 4095 => Buffer (25 .. 32) := Convert_Wheel_PWM_Registers(values);
+      end case;
+      This.Port.Mem_Write_Buffer(Addr => MOTORDRIVER_ADDRESS,
+                                 Data => Buffer,
+                                 Status => Status);
+   end Set_PWM_Wheel;
+
+
    procedure Set_PWM_Wheels (This : MotorDriver;
                   rf : Wheel;
                   rb : Wheel;

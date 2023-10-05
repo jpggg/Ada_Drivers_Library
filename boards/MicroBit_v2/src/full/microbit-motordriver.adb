@@ -44,6 +44,67 @@ package body MicroBit.MotorDriver is
       MD.Set_Frequency_Hz (50); --50 Hz
    end Initialize;
 
+   procedure Drive3 (Speed : Speeds2 := (4095,4095,4095,4095)) is
+   begin
+      if (Speed.rf > 0) then
+         MD.Set_PWM_Wheel((UInt12(Speed.rf), 0), 0);
+      elsif (Speed.rf < 0) then
+         MD.Set_PWM_Wheel((0, UInt12(abs(Speed.rf))), 0);
+      end if;
+
+      if (Speed.rb > 0) then
+         MD.Set_PWM_Wheel((UInt12(Speed.rb), 0), 1);
+      elsif (Speed.rb < 0) then
+         MD.Set_PWM_Wheel((0, UInt12(abs(Speed.rb))), 1);
+      end if;
+
+      if (Speed.lf > 0) then
+         MD.Set_PWM_Wheel((UInt12(Speed.lf), 0), 2);
+      elsif (Speed.lf < 0) then
+         MD.Set_PWM_Wheel((0, UInt12(abs(Speed.lf))), 2);
+      end if;
+
+      if (Speed.lb > 0) then
+         MD.Set_PWM_Wheel((UInt12(Speed.lb), 0), 3);
+      elsif (Speed.lb < 0) then
+         MD.Set_PWM_Wheel((0, UInt12(abs(Speed.lb))), 3);
+      end if;
+
+   end Drive3;
+
+
+
+   procedure Drive2 (Speed : Speeds := (4095,4095,4095,4095)) is
+   begin
+      if (Speed.rf > 0 and Speed.rb > 0) then
+         if (Speed.lf > 0 and Speed.lb > 0) then
+            Drive_Wheels(rf => (Speed.rf, 0),
+                         rb => (Speed.rb, 0),
+                         lf => (Speed.lf, 0),
+                         lb => (Speed.lb, 0));
+         else
+            Drive_Wheels(rf => (Speed.rf, 0),
+                         rb => (Speed.rb, 0),
+                         lf => (0, Speed.lf),
+                         lb => (0, Speed.lb));
+
+         end if;
+      else
+         if (Speed.lf > 0 and Speed.lb > 0) then
+            Drive_Wheels(rf => (0, Speed.rf),
+                         rb => (0, Speed.rb),
+                         lf => (Speed.lf, 0),
+                         lb => (Speed.lb, 0));
+         else
+            Drive_Wheels(rf => (0, Speed.rf),
+                         rb => (0, Speed.rb),
+                         lf => (0, Speed.lf),
+                         lb => (0, Speed.lb));
+         end if;
+      end if;
+
+   end Drive2;
+
    procedure Drive (Direction : Directions;
                     Speed : Speeds := (4095,4095,4095,4095)) is
       --Note: See implementation of wheel to be (Forward, Backward)

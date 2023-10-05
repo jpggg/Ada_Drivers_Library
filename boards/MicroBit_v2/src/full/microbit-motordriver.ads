@@ -44,12 +44,24 @@ package MicroBit.MotorDriver is
                        Backward,
                        Stop);
 
+   type Speeds2 is record
+      rf: Integer;
+      rb: Integer;
+      lf: Integer;
+      lb: Integer;
+   end record;
+
+
    type Speeds is record
       rf: UInt12;
       rb: UInt12;
       lf: UInt12;
       lb: UInt12;
    end record;
+
+   procedure Drive3 (Speed : Speeds2 := (4095,4095,4095,4095));
+
+   procedure Drive2 (Speed : Speeds := (4095,4095,4095,4095));
 
    procedure Drive (Direction : Directions;
                     Speed : Speeds := (4095,4095,4095,4095));

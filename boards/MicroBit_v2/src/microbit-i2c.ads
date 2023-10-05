@@ -40,6 +40,7 @@ package MicroBit.I2C is
    function InitializedExt return Boolean;
    --  Return True if the I2C controller is initialized and ready to use
 
+
    procedure Initialize (S : Speed := S400kbps)
      with Post => Initialized;
    --  Initialize the I2C controller at given speed, using the micro:bit I2C

@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                       Copyright (C) 2018, AdaCore                        --
+--                    Copyright (C) 2018-2020, AdaCore                      --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -29,36 +29,69 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with HAL.I2C; use HAL.I2C;
+with nRF.Device;
+with nRF.TWI;
 
-package MicroBit.I2C is
+package body MicroBit.I2C is
 
-   type Speed is (S100kbps, S250kbps, S400kbps);
+   Init_Done : Boolean := False;
+   Init_DoneExt : Boolean := False;
 
-   function Initialized return Boolean;
-   --  Return True if the I2C controller is initialized and ready to use
-   function InitializedExt return Boolean;
-   --  Return True if the I2C controller is initialized and ready to use
+   Device : nRF.TWI.TWI_Master renames nRF.Device.TWI_0;
+   --  This device should not conflict with the device used in MicroBit.SPI.
+   --  See nRF Series Reference Manual, chapter Memory.Instantiation.
 
-   procedure Initialize (S : Speed := S400kbps)
-     with Post => Initialized;
-   --  Initialize the I2C controller at given speed, using the micro:bit I2C
-   --  pins:
-   --   - P31 -> SCL
-   --   - P30 -> SDA
+   --use this interface for external I2C
+   DeviceExt : nRF.TWI.TWI_Master renames nRF.Device.TWI_1;
+   -----------------
+   -- Initialized --
+   -----------------
 
-    procedure InitializeExt (S : Speed := S400kbps)
-     with Post => InitializedExt;
-   --  Initialize the I2C controller at given speed, using the micro:bit I2C
-   --  external pins:
-   --   - P19 -> SCL
-   --   - P20 -> SDA
+   function Initialized return Boolean
+   is (Init_Done);
 
+   function InitializedExt return Boolean
+   is (Init_DoneExt);
+   ----------------
+   -- Initialize --
+   ----------------
 
-   function Controller return not null Any_I2C_Port;
-   --  Return the HAL.I2C controller implementation
+   procedure Initialize (S : Speed := S400kbps) is
+   begin
+      Device.Configure
+        (SCL   => MB_SCL.Pin,
+         SDA   => MB_SDA.Pin,
+         Speed => (case S is
+                      when S100kbps => nRF.TWI.TWI_100kbps,
+                      when S250kbps => nRF.TWI.TWI_250kbps,
+                      when S400kbps => nRF.TWI.TWI_400kbps)
+        );
 
-   function ControllerExt return not null Any_I2C_Port;
-   --  Return the HAL.I2C controller implementation
+      Device.Enable;
+      Init_Done := True;
+   end Initialize;
 
+   procedure InitializeExt (S : Speed := S400kbps) is
+   begin
+      DeviceExt.Configure
+        (SCL   => MB_SCL_EXT.Pin,
+         SDA   => MB_SDA_EXT.Pin,
+         Speed => (case S is
+                      when S100kbps => nRF.TWI.TWI_100kbps,
+                      when S250kbps => nRF.TWI.TWI_250kbps,
+                      when S400kbps => nRF.TWI.TWI_400kbps)
+        );
+
+      DeviceExt.Enable;
+      Init_DoneExt := True;
+   end InitializeExt;
+   ----------------
+   -- Controller --
+   ----------------
+
+   function Controller return not null Any_I2C_Port
+   is (Device'Access);
+
+   function ControllerExt return not null Any_I2C_Port
+   is (DeviceExt'Access);
 end MicroBit.I2C;

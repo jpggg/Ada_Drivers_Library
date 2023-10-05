@@ -1,11 +1,11 @@
-with MicroBit.Time.Highspeed; use MicroBit.Time.Highspeed;
+with MicroBit.TimeHighspeed; use MicroBit.TimeHighspeed;
 package body MicroBit.Ultrasonic is
    --2do: add multi sensor support
    --     make calls non blocking
 
    Trigger   : GPIO_Point := MB_P0;
    Echo  : GPIO_Point := MB_P0;
-   result : Distance_cm := 0;
+   result : Float := 0.0;
 
    --we use this setup function to prevent a dependency on Microbit.IOS
    procedure Setup (trigger_pin : GPIO_Point;
@@ -31,7 +31,7 @@ package body MicroBit.Ultrasonic is
       Echo.Clear;
    end Setup;
 
-   function Read return Distance_cm is
+   function Read return Float is
       echo_time_us : Integer;
    begin
       SendTriggerPulse; --blocking, but only 10 us
@@ -70,7 +70,7 @@ package body MicroBit.Ultrasonic is
       return delayCounter * 58; --high time in us
    end WaitForEcho;
 
-   function ConvertEchoToDistance (echo_time_us : Integer) return Distance_cm is
+   function ConvertEchoToDistance (echo_time_us : Integer) return Float is
     temp_result : Integer;
    begin
       -- Distance formula see: https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf
@@ -84,6 +84,6 @@ package body MicroBit.Ultrasonic is
          temp_result := 0;
       end if;
 
-      return Distance_cm(temp_result);
+      return Float(temp_result);
    end ConvertEchoToDistance;
 end MicroBit.Ultrasonic;

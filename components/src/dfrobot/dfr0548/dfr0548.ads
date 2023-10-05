@@ -59,6 +59,8 @@ package DFR0548 is
                         ServoPin: ServoPins;
                         Angle: Degrees);
 
+   procedure Set_PWM_Wheel(This : MotorDriver; values : Wheel; entity : UInt12);
+
    procedure Set_PWM_Wheels (This : MotorDriver;
                   rf : Wheel;
                   rb : Wheel;
