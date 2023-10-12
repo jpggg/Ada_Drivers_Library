@@ -19,7 +19,7 @@ end Main;
 
 
 
-
+   hello : UInt12;
    motor_pwm_value : UInt12;
    pid_value_right : Integer;
    distance_right : Distance_cm;
